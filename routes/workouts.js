@@ -147,7 +147,7 @@ function(req, res, next) {
             if (err) {
                 return next(err)
             }
-            res.redirect('../workouts/list')
+            res.redirect('https://doc.gold.ac.uk/usr/134/workouts/list')
         })
     })
 })
@@ -176,7 +176,7 @@ router.post('/delete/:id', redirectLogin, function(req, res, next) {
             if (err) {
                 return next(err)
             }
-            res.redirect('../workouts/list')
+            res.redirect('https://doc.gold.ac.uk/usr/134/workouts/list')
         })
     })
 })
