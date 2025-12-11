@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Workout - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Add New Workout</h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; <a href="/dashboard">Dashboard</a> &gt; Add Workout
+        </nav>
+
+        <main class="content">
+            <div class="form-container">
+                <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                    <div class="error-box">
+                        <ul>
+                            <% errors.forEach(function(error) { %>
+                                <li><%= error.msg %></li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                <% } %>
+
+                <form action="/workouts/added" method="post">
+                    <div class="form-group">
+                        <label for="name">Workout Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="e.g., Morning Run, Leg Day">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workout_type">Workout Type *</label>
+                        <select id="workout_type" name="workout_type" required>
+                            <option value="">Select a type...</option>
+                            <% workoutTypes.forEach(function(type) { %>
+                                <option value="<%= type.id %>"><%= type.name %> - <%= type.description %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workout_date">Date *</label>
+                        <input type="date" id="workout_date" name="workout_date" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="duration">Duration (minutes)</label>
+                            <input type="number" id="duration" name="duration" min="0" placeholder="e.g., 30">
+                        </div>
+
+                        <div class="form-group half">
+                            <label for="calories">Calories Burned</label>
+                            <input type="number" id="calories" name="calories" min="0" placeholder="e.g., 250">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="distance">Distance (km)</label>
+                        <input type="number" id="distance" name="distance" min="0" step="0.01" placeholder="e.g., 5.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="4" placeholder="How did your workout go? Any achievements or observations?"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Workout</button>
+                    <a href="/workouts/list" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/dashboard">Dashboard</a> | <a href="/logout">Logout</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>

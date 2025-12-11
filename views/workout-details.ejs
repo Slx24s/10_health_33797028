@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= workout.name %> - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><%= workout.name %></h1>
+            <p class="tagline"><span class="badge badge-<%= workout.workout_type.toLowerCase() %>"><%= workout.workout_type %></span></p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; <a href="/workouts/search">Search</a> &gt; Workout Details
+        </nav>
+
+        <main class="content">
+            <div class="workout-details">
+                <div class="detail-card">
+                    <h3>Date</h3>
+                    <p><%= new Date(workout.workout_date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Duration</h3>
+                        <p class="stat-value"><%= workout.duration_minutes || '-' %> <span class="unit">min</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Calories Burned</h3>
+                        <p class="stat-value"><%= workout.calories_burned || '-' %> <span class="unit">kcal</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Distance</h3>
+                        <p class="stat-value"><%= workout.distance_km ? parseFloat(workout.distance_km).toFixed(2) : '-' %> <span class="unit">km</span></p>
+                    </div>
+                </div>
+
+                <% if (workout.notes) { %>
+                    <div class="detail-card">
+                        <h3>Notes</h3>
+                        <p><%= workout.notes %></p>
+                    </div>
+                <% } %>
+
+                <div class="detail-card">
+                    <h3>Logged By</h3>
+                    <p><%= workout.username %></p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/workouts/search" class="btn btn-secondary">Back to Search</a>
+                <a href="/workouts/list" class="btn btn-secondary">My Workouts</a>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/dashboard">Dashboard</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>
