@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Login to <%= appData.appName %></h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; Login
+        </nav>
+
+        <main class="content">
+            <div class="form-container">
+                <form action="/users/loggedin" method="post">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required placeholder="Enter your username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+
+                <p class="form-footer">Don't have an account? <a href="/users/register">Register here</a></p>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/">Back to Home</a></p>
+        </footer>
+    </div>
+</body>
+</html>
