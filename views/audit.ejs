@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Log - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Login Audit Log</h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; Audit Log
+        </nav>
+
+        <main class="content">
+            <p class="info-text">This log tracks all login attempts to the system.</p>
+
+            <% if (logs.length === 0) { %>
+                <p class="no-data">No login attempts recorded yet.</p>
+            <% } else { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% logs.forEach(function(log) { %>
+                            <tr class="<%= log.status === 'SUCCESS' ? 'status-success' : 'status-fail' %>">
+                                <td><%= new Date(log.created_at).toLocaleString() %></td>
+                                <td><%= log.username %></td>
+                                <td><span class="badge badge-<%= log.status.toLowerCase() %>"><%= log.status %></span></td>
+                                <td><%= log.details %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/dashboard">Dashboard</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>
