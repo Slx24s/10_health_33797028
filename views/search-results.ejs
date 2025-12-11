@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Search Results</h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; <a href="/workouts/search">Search</a> &gt; Results
+        </nav>
+
+        <main class="content">
+            <div class="search-info">
+                <% if (keyword) { %>
+                    <p>Showing results for: <strong>"<%= keyword %>"</strong></p>
+                <% } %>
+                <p>Found <strong><%= results.length %></strong> workout(s)</p>
+                <a href="/workouts/search" class="btn btn-secondary">New Search</a>
+            </div>
+
+            <% if (results.length === 0) { %>
+                <p class="no-data">No workouts found matching your criteria. Try a different search.</p>
+            <% } else { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Duration (min)</th>
+                            <th>Calories</th>
+                            <th>Distance (km)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% results.forEach(function(workout) { %>
+                            <tr>
+                                <td><%= new Date(workout.workout_date).toLocaleDateString() %></td>
+                                <td><%= workout.name %></td>
+                                <td><span class="badge badge-<%= workout.workout_type.toLowerCase() %>"><%= workout.workout_type %></span></td>
+                                <td><%= workout.duration_minutes || '-' %></td>
+                                <td><%= workout.calories_burned || '-' %></td>
+                                <td><%= workout.distance_km ? parseFloat(workout.distance_km).toFixed(2) : '-' %></td>
+                                <td><a href="/workouts/<%= workout.id %>" class="btn btn-small">View</a></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/workouts/search">Search Again</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>

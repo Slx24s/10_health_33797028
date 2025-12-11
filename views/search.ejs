@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Workouts - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Search Workouts</h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; Search Workouts
+        </nav>
+
+        <main class="content">
+            <div class="form-container">
+                <form action="/workouts/search-result" method="get">
+                    <div class="form-group">
+                        <label for="keyword">Workout Name</label>
+                        <input type="text" id="keyword" name="keyword" placeholder="Search by workout name...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type">Workout Type</label>
+                        <select id="type" name="type">
+                            <option value="">All Types</option>
+                            <% workoutTypes.forEach(function(type) { %>
+                                <option value="<%= type.id %>"><%= type.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="date_from">Date From</label>
+                            <input type="date" id="date_from" name="date_from">
+                        </div>
+
+                        <div class="form-group half">
+                            <label for="date_to">Date To</label>
+                            <input type="date" id="date_to" name="date_to">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a href="/" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/dashboard">Dashboard</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>
