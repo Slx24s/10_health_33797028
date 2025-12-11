@@ -75,5 +75,16 @@ app.use('/workouts', workoutsRoutes)
 const apiRoutes = require('./routes/api')
 app.use('/api', apiRoutes)
 
+// 404 Error Handler - must be after all routes
+app.use(function(req, res, next) {
+    res.status(404).render('404.ejs')
+})
+
+// 500 Error Handler - must be last
+app.use(function(err, req, res, next) {
+    console.error('Server Error:', err.stack)
+    res.status(500).render('500.ejs')
+})
+
 // Start the web app listening
 app.listen(port, () => console.log(`FitTrack app listening on port ${port}!`))

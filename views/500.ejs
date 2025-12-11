@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+        .error-description {
+            color: #718096;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><%= appData.appName %></h1>
+        </header>
+
+        <main class="content">
+            <div class="error-container">
+                <div class="error-code">500</div>
+                <h2 class="error-message">Something Went Wrong</h2>
+                <p class="error-description">
+                    We're experiencing some technical difficulties. Please try again later.
+                </p>
+                <a href="/" class="btn btn-primary">Back to Home</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>

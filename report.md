@@ -245,6 +245,191 @@ GET /api/stats/:username
     └── main.css         # Stylesheet
 ```
 
+## Advanced Techniques
+
+### Interactive Analytics Dashboard with Chart.js
+
+The application includes an advanced analytics dashboard that demonstrates several techniques beyond the core module content:
+
+#### 1. Client-Side JavaScript with Fetch API
+
+The analytics page uses modern JavaScript to asynchronously load data from multiple API endpoints simultaneously using `Promise.all()`:
+
+```javascript
+// From views/analytics.ejs
+const [statsRes, byTypeRes, monthlyRes, weeklyRes] = await Promise.all([
+    fetch(`/api/stats/${username}`),
+    fetch(`/api/analytics/by-type/${username}`),
+    fetch(`/api/analytics/monthly/${username}`),
+    fetch(`/api/analytics/weekly/${username}`)
+]);
+```
+
+This parallel fetching improves performance by loading all data concurrently rather than sequentially.
+
+#### 2. Complex SQL Aggregation Queries
+
+The analytics API endpoints use advanced SQL features including GROUP BY, date functions, and aggregations:
+
+```javascript
+// From routes/api.js - Monthly summary endpoint
+const sqlquery = `
+    SELECT 
+        DATE_FORMAT(w.workout_date, '%Y-%m') as month,
+        DATE_FORMAT(w.workout_date, '%b %Y') as month_label,
+        COUNT(*) as workout_count,
+        COALESCE(SUM(w.calories_burned), 0) as calories,
+        COALESCE(SUM(w.duration_minutes), 0) as minutes
+    FROM workouts w
+    JOIN users u ON w.user_id = u.id
+    WHERE u.username = ?
+      AND w.workout_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+    GROUP BY DATE_FORMAT(w.workout_date, '%Y-%m')
+    ORDER BY month ASC
+`
+```
+
+#### 3. Data Visualization with Chart.js
+
+The dashboard renders four interactive charts using the Chart.js library:
+- **Doughnut chart**: Workout distribution by type
+- **Bar chart**: Calories burned by workout type
+- **Line chart**: Monthly activity trends with dual Y-axes
+- **Bar chart**: Weekly workout frequency
+
+```javascript
+// From views/analytics.ejs - Dual-axis line chart
+monthlyChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: data.map(d => d.month_label),
+        datasets: [
+            {
+                label: 'Workouts',
+                data: data.map(d => d.workout_count),
+                borderColor: '#2d6a4f',
+                fill: true,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Calories (hundreds)',
+                data: data.map(d => Math.round(d.calories / 100)),
+                borderColor: '#ef4444',
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: { position: 'left', title: { text: 'Workouts' } },
+            y1: { position: 'right', title: { text: 'Calories' } }
+        }
+    }
+});
+```
+
+#### 4. Loading States and Error Handling
+
+The analytics page implements proper UX patterns including:
+- Loading spinner while data is being fetched
+- Error handling with user-friendly messages
+- Empty state when no workout data exists
+
+### Delete Workout Functionality (Complete CRUD)
+
+The application implements full CRUD operations including secure deletion with ownership verification:
+
+```javascript
+// From routes/workouts.js - Delete with authorization check
+router.post('/delete/:id', redirectLogin, function(req, res, next) {
+    const workoutId = req.params.id
+    const username = req.session.userId
+
+    // Verify the workout belongs to the logged-in user
+    const verifyQuery = `
+        SELECT w.id FROM workouts w
+        JOIN users u ON w.user_id = u.id
+        WHERE w.id = ? AND u.username = ?
+    `
+    db.query(verifyQuery, [workoutId, username], (err, result) => {
+        if (!result || result.length === 0) {
+            return res.status(403).send('Unauthorized')
+        }
+        db.query('DELETE FROM workouts WHERE id = ?', [workoutId], ...)
+    })
+})
+```
+
+This demonstrates authorization checks before destructive operations.
+
+### CSV Data Export
+
+Users can export their workout data as a CSV file for use in spreadsheets:
+
+```javascript
+// From routes/workouts.js - CSV export with proper headers
+router.get('/export/csv', redirectLogin, function(req, res, next) {
+    // ... query workouts ...
+    
+    // Build CSV content with proper escaping
+    const headers = ['Name', 'Type', 'Duration (mins)', 'Calories', 'Distance (km)', 'Notes', 'Date']
+    let csv = headers.join(',') + '\n'
+    
+    workouts.forEach(w => {
+        const row = [
+            '"' + (w.name || '').replace(/"/g, '""') + '"',
+            // ... other fields with proper CSV escaping
+        ]
+        csv += row.join(',') + '\n'
+    })
+
+    // Set headers for file download
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename="workouts-export.csv"')
+    res.send(csv)
+})
+```
+
+This demonstrates server-side file generation and HTTP content-disposition headers.
+
+### Custom Error Handling Middleware
+
+The application uses Express middleware for consistent error handling:
+
+```javascript
+// From index.js - Error handling middleware
+// 404 Error Handler - must be after all routes
+app.use(function(req, res, next) {
+    res.status(404).render('404.ejs')
+})
+
+// 500 Error Handler - must be last
+app.use(function(err, req, res, next) {
+    console.error('Server Error:', err.stack)
+    res.status(500).render('500.ejs')
+})
+```
+
+This provides user-friendly error pages instead of exposing raw errors.
+
+#### Files Containing Advanced Techniques
+- `routes/api.js` (lines 120-217): Analytics API endpoints with complex SQL
+- `views/analytics.ejs`: Full client-side JavaScript implementation with Chart.js
+- `routes/main.js` (line 32-34): Analytics route handler
+- `routes/workouts.js` (lines 176-244): Delete and CSV export functionality
+- `index.js` (lines 78-87): Error handling middleware
+- `views/404.ejs`, `views/500.ejs`: Custom error pages
+
+## AI Declaration
+
+AI tools (Claude/Cascade) were used to assist with:
+- Generating boilerplate code structure
+- Writing complex SQL aggregation queries
+- Implementing Chart.js visualizations
+- Code review and debugging
+
+All code was reviewed, understood, and tested by the developer before inclusion.
+
 ## Deployment Notes
 
 - The application is designed to run on Linux servers

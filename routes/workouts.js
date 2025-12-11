@@ -152,7 +152,77 @@ function(req, res, next) {
     })
 })
 
-// View single workout
+// Delete workout (protected) - MUST be before /:id route
+router.post('/delete/:id', redirectLogin, function(req, res, next) {
+    const workoutId = req.params.id
+    const username = req.session.userId
+
+    // Verify the workout belongs to the logged-in user
+    const verifyQuery = `
+        SELECT w.id FROM workouts w
+        JOIN users u ON w.user_id = u.id
+        WHERE w.id = ? AND u.username = ?
+    `
+    db.query(verifyQuery, [workoutId, username], (err, result) => {
+        if (err) {
+            return next(err)
+        }
+        if (!result || result.length === 0) {
+            return res.status(403).send('Unauthorized to delete this workout. <a href="/workouts/list">Back to list</a>')
+        }
+
+        // Delete the workout
+        db.query('DELETE FROM workouts WHERE id = ?', [workoutId], (err, result) => {
+            if (err) {
+                return next(err)
+            }
+            res.redirect('/workouts/list')
+        })
+    })
+})
+
+// Export workouts as CSV (protected) - MUST be before /:id route
+router.get('/export/csv', redirectLogin, function(req, res, next) {
+    const username = req.session.userId
+    const sqlquery = `
+        SELECT w.name, wt.name as workout_type, w.duration_minutes, 
+               w.calories_burned, w.distance_km, w.notes, w.workout_date
+        FROM workouts w
+        JOIN workout_types wt ON w.workout_type_id = wt.id
+        JOIN users u ON w.user_id = u.id
+        WHERE u.username = ?
+        ORDER BY w.workout_date DESC
+    `
+    db.query(sqlquery, [username], (err, workouts) => {
+        if (err) {
+            return next(err)
+        }
+
+        // Build CSV content
+        const headers = ['Name', 'Type', 'Duration (mins)', 'Calories', 'Distance (km)', 'Notes', 'Date']
+        let csv = headers.join(',') + '\n'
+
+        workouts.forEach(w => {
+            const row = [
+                '"' + (w.name || '').replace(/"/g, '""') + '"',
+                '"' + (w.workout_type || '') + '"',
+                w.duration_minutes || '',
+                w.calories_burned || '',
+                w.distance_km || '',
+                '"' + (w.notes || '').replace(/"/g, '""').replace(/\n/g, ' ') + '"',
+                w.workout_date ? new Date(w.workout_date).toISOString().split('T')[0] : ''
+            ]
+            csv += row.join(',') + '\n'
+        })
+
+        // Set headers for file download
+        res.setHeader('Content-Type', 'text/csv')
+        res.setHeader('Content-Disposition', 'attachment; filename="workouts-export.csv"')
+        res.send(csv)
+    })
+})
+
+// View single workout - MUST be last (catches all /:id patterns)
 router.get('/:id', function(req, res, next) {
     const workoutId = req.params.id
     const sqlquery = `
