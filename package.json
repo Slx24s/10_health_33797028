@@ -1,0 +1,28 @@
+{
+  "name": "fitness-tracker",
+  "version": "1.0.0",
+  "description": "A fitness tracking Node.js application for the Dynamic Web Applications module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "fitness",
+    "tracker",
+    "health",
+    "workout"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.6",
+    "express": "^4.18.1",
+    "express-sanitizer": "^1.0.6",
+    "express-session": "^1.18.2",
+    "express-validator": "^7.3.1",
+    "mysql2": "^3.9.4"
+  }
+}
