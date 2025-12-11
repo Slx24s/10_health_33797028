@@ -185,11 +185,12 @@
 
         async function fetchAnalytics() {
             try {
+                const basePath = '/usr/134';
                 const [statsRes, byTypeRes, monthlyRes, weeklyRes] = await Promise.all([
-                    fetch(`/api/stats/${username}`),
-                    fetch(`/api/analytics/by-type/${username}`),
-                    fetch(`/api/analytics/monthly/${username}`),
-                    fetch(`/api/analytics/weekly/${username}`)
+                    fetch(`${basePath}/api/stats/${username}`),
+                    fetch(`${basePath}/api/analytics/by-type/${username}`),
+                    fetch(`${basePath}/api/analytics/monthly/${username}`),
+                    fetch(`${basePath}/api/analytics/weekly/${username}`)
                 ]);
 
                 const stats = await statsRes.json();
