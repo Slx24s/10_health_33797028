@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Register for <%= appData.appName %></h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; Register
+        </nav>
+
+        <main class="content">
+            <div class="form-container">
+                <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                    <div class="error-box">
+                        <ul>
+                            <% errors.forEach(function(error) { %>
+                                <li><%= error.msg %></li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                <% } %>
+
+                <form action="/users/registered" method="post">
+                    <div class="form-group">
+                        <label for="first">First Name</label>
+                        <input type="text" id="first" name="first" required placeholder="Enter your first name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last">Last Name</label>
+                        <input type="text" id="last" name="last" required placeholder="Enter your last name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username (5-20 characters)</label>
+                        <input type="text" id="username" name="username" required minlength="5" maxlength="20" placeholder="Choose a username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password (minimum 8 characters)</label>
+                        <input type="password" id="password" name="password" required minlength="8" placeholder="Choose a password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+
+                <p class="form-footer">Already have an account? <a href="/users/login">Login here</a></p>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/">Back to Home</a></p>
+        </footer>
+    </div>
+</body>
+</html>
