@@ -1,0 +1,12 @@
+home=http://localhost:8000/
+about=http://localhost:8000/about
+register=http://localhost:8000/users/register
+login=http://localhost:8000/users/login
+dashboard=http://localhost:8000/dashboard
+workouts_list=http://localhost:8000/workouts/list
+add_workout=http://localhost:8000/workouts/add
+search=http://localhost:8000/workouts/search
+users_list=http://localhost:8000/users/list
+audit_log=http://localhost:8000/users/audit
+api_workouts=http://localhost:8000/api/workouts
+api_workout_types=http://localhost:8000/api/workout-types
