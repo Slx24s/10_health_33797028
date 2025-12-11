@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome, <%= username %>!</h1>
+            <p class="tagline">Your Fitness Dashboard</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; Dashboard
+        </nav>
+
+        <main class="content">
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Workouts</h3>
+                    <p class="stat-value"><%= stats.total_workouts %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Minutes</h3>
+                    <p class="stat-value"><%= stats.total_minutes %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Calories Burned</h3>
+                    <p class="stat-value"><%= stats.total_calories %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Distance (km)</h3>
+                    <p class="stat-value"><%= parseFloat(stats.total_distance).toFixed(2) %></p>
+                </div>
+            </section>
+
+            <section class="recent-workouts">
+                <h2>Recent Workouts</h2>
+                <% if (recentWorkouts.length === 0) { %>
+                    <p>No workouts recorded yet. <a href="/workouts/add">Add your first workout!</a></p>
+                <% } else { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Calories</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentWorkouts.forEach(function(workout) { %>
+                                <tr>
+                                    <td><%= new Date(workout.workout_date).toLocaleDateString() %></td>
+                                    <td><a href="/workouts/<%= workout.id %>"><%= workout.name %></a></td>
+                                    <td><%= workout.workout_type %></td>
+                                    <td><%= workout.duration_minutes || '-' %> min</td>
+                                    <td><%= workout.calories_burned || '-' %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } %>
+            </section>
+
+            <section class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="/workouts/add" class="btn btn-primary">Add Workout</a>
+                    <a href="/workouts/list" class="btn btn-secondary">View All Workouts</a>
+                    <a href="/workouts/search" class="btn btn-secondary">Search Workouts</a>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/logout">Logout</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>
