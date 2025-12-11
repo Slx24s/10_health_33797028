@@ -111,7 +111,7 @@ function(req, res, next) {
                 req.session.userId = username;
                 const insertAudit = "INSERT INTO audit_log (username, status, details) VALUES (?,?,?)"
                 ensureAuditTable(() => db.query(insertAudit, [username, 'SUCCESS', 'password matched'], () => {}))
-                res.redirect('/dashboard')
+                res.redirect('../dashboard')
             } else {
                 const insertAudit = "INSERT INTO audit_log (username, status, details) VALUES (?,?,?)"
                 ensureAuditTable(() => db.query(insertAudit, [username, 'FAIL', 'incorrect password'], () => {}))
