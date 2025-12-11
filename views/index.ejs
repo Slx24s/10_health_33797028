@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><%= appData.appName %></h1>
+            <p class="tagline">Track Your Fitness Journey</p>
+        </header>
+
+        <nav class="main-nav">
+            <h2>Navigation</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About <%= appData.appName %></a></li>
+                <li><a href="/workouts/search">Search Workouts</a></li>
+                <li><a href="/workouts/list">My Workouts</a></li>
+                <li><a href="/workouts/add">Add New Workout</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+        </nav>
+
+        <nav class="user-nav">
+            <h2>Account</h2>
+            <ul>
+                <li><a href="/users/register">Register</a></li>
+                <li><a href="/users/login">Login</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+
+        <footer>
+            <p>&copy; 2024 <%= appData.appName %> - Dynamic Web Applications Module</p>
+        </footer>
+    </div>
+</body>
+</html>

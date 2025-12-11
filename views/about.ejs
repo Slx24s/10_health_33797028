@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>About <%= appData.appName %></h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; About
+        </nav>
+
+        <main class="content">
+            <section>
+                <h2>What is <%= appData.appName %>?</h2>
+                <p><%= appData.appName %> is a comprehensive fitness tracking application that helps you monitor and achieve your health goals. Whether you're running, cycling, lifting weights, or practicing yoga, our app helps you keep track of all your activities.</p>
+            </section>
+
+            <section>
+                <h2>Features</h2>
+                <ul class="feature-list">
+                    <li><strong>Track Multiple Workout Types:</strong> Log cardio, strength training, flexibility exercises, HIIT sessions, and sports activities.</li>
+                    <li><strong>Detailed Metrics:</strong> Record duration, calories burned, distance covered, and personal notes for each workout.</li>
+                    <li><strong>Search & Filter:</strong> Find your workouts by name, type, or date range.</li>
+                    <li><strong>Dashboard:</strong> View your fitness statistics and recent activity at a glance.</li>
+                    <li><strong>Secure:</strong> Your data is protected with encrypted passwords and session management.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Get Started</h2>
+                <p><a href="/users/register">Register now</a> to start tracking your fitness journey, or <a href="/users/login">login</a> if you already have an account.</p>
+            </section>
+        </main>
+
+        <footer>
+            <p><a href="/">Back to Home</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+</body>
+</html>
