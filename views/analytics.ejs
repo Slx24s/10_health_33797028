@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - <%= appData.appName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .chart-card h3 {
+            color: #2d6a4f;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #d8f3dc;
+            padding-bottom: 10px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #d8f3dc;
+            border-top-color: #2d6a4f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .summary-stat {
+            background: linear-gradient(135deg, #d8f3dc 0%, #b7e4c7 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .summary-stat h4 {
+            color: #2d6a4f;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .summary-stat .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1b4332;
+        }
+        .no-data-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+        .no-data-message p {
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Analytics Dashboard</h1>
+            <p class="tagline">Track your fitness progress with data insights</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="/">Home</a> &gt; <a href="/dashboard">Dashboard</a> &gt; Analytics
+        </nav>
+
+        <main class="content">
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading your analytics...</p>
+            </div>
+
+            <div id="analytics-content" style="display: none;">
+                <section id="summary-section">
+                    <h2>Overview</h2>
+                    <div class="summary-stats" id="summary-stats">
+                        <div class="summary-stat">
+                            <h4>Total Workouts</h4>
+                            <div class="value" id="total-workouts">0</div>
+                        </div>
+                        <div class="summary-stat">
+                            <h4>This Month</h4>
+                            <div class="value" id="month-workouts">0</div>
+                        </div>
+                        <div class="summary-stat">
+                            <h4>Calories Burned</h4>
+                            <div class="value" id="total-calories">0</div>
+                        </div>
+                        <div class="summary-stat">
+                            <h4>Hours Trained</h4>
+                            <div class="value" id="total-hours">0</div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Workouts by Type</h3>
+                        <div class="chart-container">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Calories by Workout Type</h3>
+                        <div class="chart-container">
+                            <canvas id="caloriesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Monthly Activity (Last 6 Months)</h3>
+                        <div class="chart-container">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Weekly Workout Trend</h3>
+                        <div class="chart-container">
+                            <canvas id="weeklyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="no-data" class="no-data-message" style="display: none;">
+                <h2>No Workout Data Yet</h2>
+                <p>Start logging your workouts to see your analytics!</p>
+                <a href="/workouts/add" class="btn btn-primary">Add Your First Workout</a>
+            </div>
+        </main>
+
+        <footer>
+            <p><a href="/">Home</a> | <a href="/dashboard">Dashboard</a> | <a href="/logout">Logout</a></p>
+            <p>&copy; 2024 <%= appData.appName %></p>
+        </footer>
+    </div>
+
+    <script>
+        const username = '<%= username %>';
+        const chartColors = {
+            primary: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2'],
+            calories: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'],
+            gradient: ['rgba(45, 106, 79, 0.8)', 'rgba(64, 145, 108, 0.8)']
+        };
+
+        let typeChart, caloriesChart, monthlyChart, weeklyChart;
+
+        async function fetchAnalytics() {
+            try {
+                const [statsRes, byTypeRes, monthlyRes, weeklyRes] = await Promise.all([
+                    fetch(`/api/stats/${username}`),
+                    fetch(`/api/analytics/by-type/${username}`),
+                    fetch(`/api/analytics/monthly/${username}`),
+                    fetch(`/api/analytics/weekly/${username}`)
+                ]);
+
+                const stats = await statsRes.json();
+                const byType = await byTypeRes.json();
+                const monthly = await monthlyRes.json();
+                const weekly = await weeklyRes.json();
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (stats.total_workouts === 0) {
+                    document.getElementById('no-data').style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('analytics-content').style.display = 'block';
+
+                // Update summary stats
+                document.getElementById('total-workouts').textContent = stats.total_workouts;
+                document.getElementById('total-calories').textContent = stats.total_calories.toLocaleString();
+                document.getElementById('total-hours').textContent = (stats.total_minutes / 60).toFixed(1);
+                
+                // Calculate this month's workouts
+                const thisMonthWorkouts = monthly.length > 0 ? monthly[monthly.length - 1].workout_count : 0;
+                document.getElementById('month-workouts').textContent = thisMonthWorkouts;
+
+                // Render charts
+                renderTypeChart(byType);
+                renderCaloriesChart(byType);
+                renderMonthlyChart(monthly);
+                renderWeeklyChart(weekly);
+
+            } catch (error) {
+                console.error('Error fetching analytics:', error);
+                document.getElementById('loading').innerHTML = '<p>Error loading analytics. Please try again.</p>';
+            }
+        }
+
+        function renderTypeChart(data) {
+            const ctx = document.getElementById('typeChart').getContext('2d');
+            typeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.workout_type),
+                    datasets: [{
+                        data: data.map(d => d.count),
+                        backgroundColor: chartColors.primary,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCaloriesChart(data) {
+            const ctx = document.getElementById('caloriesChart').getContext('2d');
+            caloriesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.workout_type),
+                    datasets: [{
+                        label: 'Calories Burned',
+                        data: data.map(d => d.total_calories),
+                        backgroundColor: chartColors.calories,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderMonthlyChart(data) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            monthlyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.month_label),
+                    datasets: [
+                        {
+                            label: 'Workouts',
+                            data: data.map(d => d.workout_count),
+                            borderColor: '#2d6a4f',
+                            backgroundColor: 'rgba(45, 106, 79, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Calories (hundreds)',
+                            data: data.map(d => Math.round(d.calories / 100)),
+                            borderColor: '#ef4444',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            title: { display: true, text: 'Workouts' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            title: { display: true, text: 'Calories (hundreds)' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderWeeklyChart(data) {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            
+            // Format week labels
+            const labels = data.map(d => {
+                const date = new Date(d.week_start);
+                return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            });
+
+            weeklyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Workouts',
+                        data: data.map(d => d.workout_count),
+                        backgroundColor: 'rgba(45, 106, 79, 0.8)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load analytics when page loads
+        document.addEventListener('DOMContentLoaded', fetchAnalytics);
+    </script>
+</body>
+</html>

@@ -117,5 +117,104 @@ router.get('/stats/:username', function(req, res, next) {
     })
 })
 
+// GET analytics - workouts by type for a user
+router.get('/analytics/by-type/:username', function(req, res, next) {
+    const username = req.params.username
+    const sqlquery = `
+        SELECT wt.name as workout_type, 
+               COUNT(*) as count,
+               COALESCE(SUM(w.calories_burned), 0) as total_calories,
+               COALESCE(SUM(w.duration_minutes), 0) as total_minutes
+        FROM workouts w
+        JOIN workout_types wt ON w.workout_type_id = wt.id
+        JOIN users u ON w.user_id = u.id
+        WHERE u.username = ?
+        GROUP BY wt.id, wt.name
+        ORDER BY count DESC
+    `
+    db.query(sqlquery, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message })
+        }
+        res.json(result)
+    })
+})
+
+// GET analytics - weekly workout trends (last 8 weeks)
+router.get('/analytics/weekly/:username', function(req, res, next) {
+    const username = req.params.username
+    const sqlquery = `
+        SELECT 
+            YEAR(w.workout_date) as year,
+            WEEK(w.workout_date) as week,
+            MIN(w.workout_date) as week_start,
+            COUNT(*) as workout_count,
+            COALESCE(SUM(w.calories_burned), 0) as calories,
+            COALESCE(SUM(w.duration_minutes), 0) as minutes
+        FROM workouts w
+        JOIN users u ON w.user_id = u.id
+        WHERE u.username = ?
+          AND w.workout_date >= DATE_SUB(CURDATE(), INTERVAL 8 WEEK)
+        GROUP BY YEAR(w.workout_date), WEEK(w.workout_date)
+        ORDER BY year ASC, week ASC
+    `
+    db.query(sqlquery, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message })
+        }
+        res.json(result)
+    })
+})
+
+// GET analytics - monthly summary (last 6 months)
+router.get('/analytics/monthly/:username', function(req, res, next) {
+    const username = req.params.username
+    const sqlquery = `
+        SELECT 
+            DATE_FORMAT(w.workout_date, '%Y-%m') as month,
+            DATE_FORMAT(w.workout_date, '%b %Y') as month_label,
+            COUNT(*) as workout_count,
+            COALESCE(SUM(w.calories_burned), 0) as calories,
+            COALESCE(SUM(w.duration_minutes), 0) as minutes,
+            COALESCE(SUM(w.distance_km), 0) as distance
+        FROM workouts w
+        JOIN users u ON w.user_id = u.id
+        WHERE u.username = ?
+          AND w.workout_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+        GROUP BY DATE_FORMAT(w.workout_date, '%Y-%m'), DATE_FORMAT(w.workout_date, '%b %Y')
+        ORDER BY month ASC
+    `
+    db.query(sqlquery, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message })
+        }
+        res.json(result)
+    })
+})
+
+// GET analytics - daily activity (last 30 days)
+router.get('/analytics/daily/:username', function(req, res, next) {
+    const username = req.params.username
+    const sqlquery = `
+        SELECT 
+            DATE(w.workout_date) as date,
+            COUNT(*) as workout_count,
+            COALESCE(SUM(w.calories_burned), 0) as calories,
+            COALESCE(SUM(w.duration_minutes), 0) as minutes
+        FROM workouts w
+        JOIN users u ON w.user_id = u.id
+        WHERE u.username = ?
+          AND w.workout_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        GROUP BY DATE(w.workout_date)
+        ORDER BY date ASC
+    `
+    db.query(sqlquery, [username], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: err.message })
+        }
+        res.json(result)
+    })
+})
+
 // Export the router object so index.js can access it
 module.exports = router

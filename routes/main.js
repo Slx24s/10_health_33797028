@@ -28,6 +28,11 @@ router.get('/logout', redirectLogin, (req, res) => {
     })
 })
 
+// Analytics Dashboard - requires login
+router.get('/analytics', redirectLogin, function(req, res, next) {
+    res.render('analytics.ejs', { username: req.session.userId })
+})
+
 // Dashboard - requires login
 router.get('/dashboard', redirectLogin, function(req, res, next) {
     // Get user's workout stats
